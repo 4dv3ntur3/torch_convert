@@ -198,5 +198,6 @@ cython_debug/
 model/
 *.pt
 *.onnx
+*.zip
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode

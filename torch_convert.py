@@ -1,15 +1,15 @@
 import os
 import logging
 import argparse
-from tqdm import tqdm, trange
 
 import numpy as np
 import torch
 from torch.utils.data import TensorDataset, DataLoader, SequentialSampler
-from transformers import AutoModelForTokenClassification
+from transformers import ElectraForTokenClassification, ElectraTokenizer
 
-from utils import init_logger, load_tokenizer
 
+def load_tokenizer(args):
+    return ElectraTokenizer.from_pretrained(args.model_name_or_path)
 
 def get_args(pred_config):
     return torch.load(os.path.join(pred_config, 'training_params.bin'))
@@ -140,7 +140,7 @@ if __name__ == "__main__":
     # modify ELECTRAConfig
 
 
-    model = AutoModelForTokenClassification.from_pretrained(MODEL_DIR, torchscript=True)  # Config will be automatically loaded from model_dir
+    model = ElectraForTokenClassification.from_pretrained(MODEL_DIR, torchscript=True)  # Config will be automatically loaded from model_dir
     model.to(device)
     model.eval()
 

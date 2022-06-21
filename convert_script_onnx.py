@@ -2,22 +2,21 @@ import os
 import logging
 import argparse
 from typing import OrderedDict
-from tqdm import tqdm, trange
 
 import numpy as np
 import torch
-from torch.utils.data import TensorDataset, DataLoader, SequentialSampler
-from transformers import AutoModelForTokenClassification
+from torch.utils.data import TensorDataset
+from transformers import ElectraForTokenClassification, ElectraTokenizer
 
-from utils import init_logger, load_tokenizer
 
 # 필요한 import문 for ONNX
 import torch.onnx
 
+def load_tokenizer(args):
+    return ElectraTokenizer.from_pretrained(args.model_name_or_path)
 
 def get_args(pred_config):
-    return torch.load(os.path.join(pred_config, 'training_params.bin'))
-
+    return torch.load(os.path.join(pred_config, 'training_args.bin'))
 
 def read_input_file(input_dir):
     lines = []
@@ -178,7 +177,7 @@ def convert_to_onnx(model_torch, inputs_torch, ONNX_OUTPUT_PATH):
     
     # 메모리에 연속 배열 반환 
     inputs_onnx = {
-        k: np.ascontiguousarray(v.detach().cpu().numpy()) for k, v in inputs.items()
+        k: np.ascontiguousarray(v.detach().cpu().numpy()) for k, v in inputs_torch.items()
     }
     
     # 모델 변환 
@@ -206,13 +205,11 @@ if __name__ == "__main__":
 
     device = get_device()
 
-    model_torch = AutoModelForTokenClassification.from_pretrained(MODEL_DIR, torchscript=True)  # Config will be automatically loaded from model_dir
+    model_torch = ElectraForTokenClassification.from_pretrained(MODEL_DIR, torchscript=True)  # Config will be automatically loaded from model_dir
 
     # prepare input
-    training_params = get_args(MODEL_DIR)
+    args = get_args(MODEL_DIR)
 
-    args = training_params['training_args']
-    label_lst = training_params['label_lst']
 
     # Convert input file to TensorDataset
     pad_token_label_id = torch.nn.CrossEntropyLoss().ignore_index
@@ -238,6 +235,6 @@ if __name__ == "__main__":
     with torch.no_grad():
         
         output_torch = model_torch(**input_torch)
-        # convert_to_onnx(model_torch, input_torch, ONNX_OUTPUT_PATH)
+        convert_to_onnx(model_torch, input_torch, ONNX_OUTPUT_PATH)
         # convert_to_script(model_torch, input_torch, SCRIPT_OUTPUT_PATH)
-        compare_with_script(output_torch, input_torch, SCRIPT_OUTPUT_PATH)
+        # compare_with_script(output_torch, input_torch, SCRIPT_OUTPUT_PATH)
