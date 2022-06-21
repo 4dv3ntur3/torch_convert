@@ -16,13 +16,14 @@ from transformers import (
     DistilBertForTokenClassification,
     ElectraForTokenClassification
 )
-from tokenization_kobert import KoBertTokenizer
+
+# from tokenization_kobert import KoBertTokenizer
 
 MODEL_CLASSES = {
-    'kobert': (BertConfig, BertForTokenClassification, KoBertTokenizer),
-    'distilkobert': (DistilBertConfig, DistilBertForTokenClassification, KoBertTokenizer),
-    'bert': (BertConfig, BertForTokenClassification, BertTokenizer),
-    'kobert-lm': (BertConfig, BertForTokenClassification, KoBertTokenizer),
+    # 'kobert': (BertConfig, BertForTokenClassification, KoBertTokenizer),
+    # 'distilkobert': (DistilBertConfig, DistilBertForTokenClassification, KoBertTokenizer),
+    # 'bert': (BertConfig, BertForTokenClassification, BertTokenizer),
+    # 'kobert-lm': (BertConfig, BertForTokenClassification, KoBertTokenizer),
     'koelectra-base': (ElectraConfig, ElectraForTokenClassification, ElectraTokenizer),
     'koelectra-small': (ElectraConfig, ElectraForTokenClassification, ElectraTokenizer),
 }
@@ -85,6 +86,3 @@ def f1_pre_rec(labels, preds):
 
 def show_report(labels, preds):
     return classification_report(labels, preds, suffix=True)
-
-
-
